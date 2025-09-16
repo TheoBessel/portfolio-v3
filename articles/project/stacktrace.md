@@ -6,7 +6,7 @@
 
 <!-- ------------------------- Quick Description --------------------------- -->
 
-Implementing a stacktrace mechanism on ARMv7-M architecture for fault detection and recovery in embedded systems.
+Implementing a stacktrace mechanism on ARMv7-M architecture for TOLOSAT's flight software FDIR.
 
 <!-- ----------------------------------------------------------------------- -->
 
