@@ -1,0 +1,62 @@
+<div class="article-content">
+<!-- ----------------------------------------------------------------------- -->
+<h1>Implementing a Stacktrace on ARMv7-M</h1>
+<p>This project is part of the <strong>TOLOSAT flight software</strong>, which I am currently developing. The goal is to create a Fault Detection, Isolation, and Recovery (FDIR) mechanism for robust fault management.</p>
+<p>The repository is available <strong><a href="https://github.com/TheoBessel/ARM_Stacktrace">here</a></strong>.</p>
+<h2>Motivation</h2>
+<p>The FDIR system is crucial for the Cortex-M7 microcontroller that powers the TOLOSAT software. To effectively detect and isolate faults, we needed a way to trace the call stack, which is commonly known as a stacktrace mechanism.</p>
+<h2>Challenges on ARMv7-M</h2>
+<p>Unlike x86 architectures, implementing stack tracing on an ARMv7-M microcontroller presents specific challenges:</p>
+<ul>
+<li><strong>Variable-sized Stack Frames</strong>: The ARMv7-M architecture uses stack frames with variable sizes to optimize memory, meaning the stack pointer (SP) and frame pointer (FP) are not always aligned to predictable addresses.</li>
+<li><strong>Unusable Frame Pointer (FP)</strong>: Initial attempts to use the frame pointer failed, as the address alignment was unreliable.</li>
+</ul>
+<h2>Stack Unwinding with ARM EHABI</h2>
+<p>I discovered that the ARM EABI GCC compiler generates stack unwinding information in two ELF file sections: <code>.ARM.exidx</code> and <code>.ARM.extab</code>. This data is essential for exception handling and provides insights for our stacktrace implementation.</p>
+<h3>Unwind Instruction Example</h3>
+<p>Below is an excerpt from the <code>.ARM.exidx</code> section of our ELF file:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><span style="color: #666">0x80</span><span style="color: #BBB"> </span><span style="color: #666">&lt;</span>_stack_init<span style="color: #666">&gt;:</span><span style="color: #BBB"> </span><span style="color: #666">0x1</span><span style="color: #BBB"> </span>[cantunwind]
+
+<span style="color: #666">0x140</span><span style="color: #BBB"> </span><span style="color: #666">&lt;</span>UnwindStack<span style="color: #666">&gt;:</span><span style="color: #BBB"> </span><span style="color: #666">@0x2000048c</span>
+<span style="color: #BBB">  </span>Compact<span style="color: #BBB"> </span>model<span style="color: #BBB"> </span>index<span style="color: #666">:</span><span style="color: #BBB"> </span><span style="color: #666">1</span>
+<span style="color: #BBB">  </span><span style="color: #666">0x97</span><span style="color: #BBB">      </span>vsp<span style="color: #BBB"> </span><span style="color: #666">=</span><span style="color: #BBB"> </span>r7
+<span style="color: #BBB">  </span><span style="color: #666">0x01</span><span style="color: #BBB">      </span>vsp<span style="color: #BBB"> </span><span style="color: #666">=</span><span style="color: #BBB"> </span>vsp<span style="color: #BBB"> </span><span style="color: #666">+</span><span style="color: #BBB"> </span><span style="color: #666">8</span>
+<span style="color: #BBB">  </span><span style="color: #666">0x84</span><span style="color: #BBB"> </span><span style="color: #666">0x08</span><span style="color: #BBB"> </span>pop<span style="color: #BBB"> </span>{r7,<span style="color: #BBB"> </span>r14}
+<span style="color: #BBB">  </span><span style="color: #666">0xb0</span><span style="color: #BBB">      </span>finish
+<span style="color: #BBB">  </span><span style="color: #666">0xb0</span><span style="color: #BBB">      </span>finish
+
+...
+
+<span style="color: #666">0xd38</span><span style="color: #BBB"> </span><span style="color: #666">&lt;</span>Reset_Handler<span style="color: #666">&gt;:</span><span style="color: #BBB"> </span><span style="color: #666">@0x20000564</span>
+<span style="color: #BBB">  </span>Compact<span style="color: #BBB"> </span>model<span style="color: #BBB"> </span>index<span style="color: #666">:</span><span style="color: #BBB"> </span><span style="color: #666">1</span>
+<span style="color: #BBB">  </span><span style="color: #666">0x97</span><span style="color: #BBB">      </span>vsp<span style="color: #BBB"> </span><span style="color: #666">=</span><span style="color: #BBB"> </span>r7
+<span style="color: #BBB">  </span><span style="color: #666">0x03</span><span style="color: #BBB">      </span>vsp<span style="color: #BBB"> </span><span style="color: #666">=</span><span style="color: #BBB"> </span>vsp<span style="color: #BBB"> </span><span style="color: #666">+</span><span style="color: #BBB"> </span><span style="color: #666">16</span>
+<span style="color: #BBB">  </span><span style="color: #666">0x84</span><span style="color: #BBB"> </span><span style="color: #666">0x08</span><span style="color: #BBB"> </span>pop<span style="color: #BBB"> </span>{r7,<span style="color: #BBB"> </span>r14}
+<span style="color: #BBB">  </span><span style="color: #666">0xb0</span><span style="color: #BBB">      </span>finish
+<span style="color: #BBB">  </span><span style="color: #666">0xb0</span><span style="color: #BBB">      </span>finish
+</pre></div>
+
+<p><em>This information provides the stack frame pointer (<code>vsp</code>), the offset to the return address (<code>r14</code>), and the adjustments for the previous frame pointer.</em></p>
+<h2>Implementation Details</h2>
+<h3>Decoding Stack Unwinding Instructions</h3>
+<p>I developed functions to decode the <code>.ARM.exidx</code> and <code>.ARM.extab</code> information and retrieve the call stack trace. The implementation details can be found in:</p>
+<ul>
+<li><strong><a href="https://github.com/TheoBessel/ARM_Stacktrace/tree/main/src/fdir.c">fdir.c</a></strong>: Contains the core functions for Error Exception Handling (EEH).</li>
+<li><strong><a href="https://github.com/TheoBessel/ARM_Stacktrace/tree/main/src/stacktrace.c">stacktrace.c</a></strong>: Contains the core functions for decoding unwind stack.</li>
+</ul>
+<h3>Debugging and Challenges</h3>
+<p>Understanding the ARM exception handling and unwinding tables took considerable effort, alongside rigorous debugging. Some debugging snippets used during development are available in:</p>
+<ul>
+<li><strong><a href="https://github.com/TheoBessel/ARM_Stacktrace/tree/main/script/stacktrace.gdb">stacktrace.gdb</a></strong>: GDB script with debugging aids for tracing the stack.</li>
+</ul>
+<p>I also optimized a few functions using pure programming techniques to improve performance and memory usage (using pure functions and <code>__attribute__((pure))</code>).</p>
+<h2>Current Status</h2>
+<p>The stacktrace mechanism operates on a bare-metal environment, it has also been tested on a FreeRTOS environment.
+Major bugs have been fixed, and the stacktrace mechanism is now stable and reliable.</p>
+<h2>Future Work</h2>
+<ul>
+<li><strong>Optimization</strong>: Improve performance and memory usage where possible.</li>
+</ul>
+<!-- ----------------------------------------------------------------------- -->
+
+</div>

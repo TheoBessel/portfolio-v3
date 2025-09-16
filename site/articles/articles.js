@@ -3,8 +3,10 @@
  */
 
 export const posts = {
+    "welcome": "articles/posts/welcome",
 };
 
 export const projects = {
     "nemesis": "articles/projects/nemesis",
+    "stacktrace": "articles/projects/stacktrace",
 };
