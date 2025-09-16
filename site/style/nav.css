@@ -1,0 +1,35 @@
+a {
+    text-decoration-thickness: 0px;
+    /* transition: all 0.5s ease-in-out; */
+}
+
+nav a:hover, nav a.active {
+    font-weight:               bold;
+    text-decoration:           underline;
+    text-decoration-color:     black;
+    text-decoration-thickness: 2px;
+}
+
+nav {
+    position: sticky;
+    top:      0%;
+    left:     0%;
+    width:    100%;
+    background-color: #ffffff;
+}
+
+nav {
+    display:         flex;
+    flex-direction:  row;
+    padding:         0.5rem;
+    gap:             2rem;
+    justify-content: center;
+}
+
+p > label {
+    font-weight: 500;
+}
+
+label {
+    cursor: pointer;
+}

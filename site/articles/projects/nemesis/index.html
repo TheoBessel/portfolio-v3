@@ -1,0 +1,257 @@
+<div class="article-content">
+<!-- ----------------------------------------------------------------------- -->
+<h1>NEMESIS Engine for Metrics Evaluation and Static Inspection of Software</h1>
+<!-- ---------------------------- Description ------------------------------ -->
+<p>NEMESIS is a tool designed to evaluate software metrics and perform static
+inspections. It provides a framework for analyzing code, providing metrics, and
+generating reports. It can flag potential issues in the codebase, such as code
+smells, complexity issues, and other maintainability concerns.</p>
+<!-- ---------------------------- Specification ---------------------------- -->
+<h2>Specification</h2>
+<p>NEMESIS is fully specified and documented. The specification tries to follow
+the <strong>ECSS-E-ST-40C</strong> standard for software engineering and contains the <strong>SRS</strong>
+(Software Requirements Specification), the <strong>SDD</strong> (Software Design Document),
+and the <strong>ICD</strong> (Interface Control Document). The specification is available in
+the <code>doc/TS/</code> directory of the repository.</p>
+<!-- ------------------------------- Help ---------------------------------- -->
+<h2>Help</h2>
+<p>You can get help on how to use NEMESIS by running the following command:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span>make<span style="color: #BBB"> </span><span style="color: #008000">help</span>
+</pre></div>
+
+<!-- ---------------------------- Installation ----------------------------- -->
+<h2>Installing NEMESIS</h2>
+<p>To install NEMESIS, follow these steps:</p>
+<ul>
+<li>Clone the repository:</li>
+</ul>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span>git<span style="color: #BBB"> </span>clone<span style="color: #BBB"> </span>https://gitlab.esa.int/Theo.Bessel/nemesis.git
+</pre></div>
+
+<ul>
+<li>Clone the LLVM repository:</li>
+</ul>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span>git<span style="color: #BBB"> </span>clone<span style="color: #BBB"> </span>https://github.com/llvm/llvm-project.git
+</pre></div>
+
+<ul>
+<li>Build and install LLVM and Clang:</li>
+</ul>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span><span style="color: #008000">cd</span><span style="color: #BBB"> </span>llvm-project
+
+mkdir<span style="color: #BBB"> </span>build
+<span style="color: #008000">cd</span><span style="color: #BBB"> </span>build
+
+cmake<span style="color: #BBB"> </span>-G<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Unix Makefiles&quot;</span><span style="color: #BBB"> </span>../llvm<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">      </span>-DCMAKE_EXPORT_COMPILE_COMMANDS<span style="color: #666">=</span>ON<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">      </span>-DLLVM_ENABLE_PROJECTS<span style="color: #666">=</span><span style="color: #BA2121">&quot;llvm;clang;clang-tools-extra&quot;</span><span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">      </span>-DCMAKE_BUILD_TYPE<span style="color: #666">=</span>Release<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">      </span>-DLLVM_ENABLE_BINDINGS<span style="color: #666">=</span>Off<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">      </span>-DLLVM_BUILD_DOCS<span style="color: #666">=</span>Off<span style="color: #BBB"> </span><span style="color: #AA5D1F; font-weight: bold">\</span>
+<span style="color: #BBB">      </span>-DLLVM_ENABLE_RTTI<span style="color: #666">=</span>ON
+
+make<span style="color: #BBB"> </span>-j<span style="color: #BBB"> </span><span style="color: #666">24</span>
+sudo<span style="color: #BBB"> </span>make<span style="color: #BBB"> </span>install<span style="color: #BBB"> </span>-j<span style="color: #BBB"> </span><span style="color: #666">24</span>
+</pre></div>
+
+<p>You can now build NEMESIS:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span>sudo<span style="color: #BBB"> </span>make<span style="color: #BBB"> </span>install
+</pre></div>
+
+<p>You might now be able to run NEMESIS:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span>nemesis<span style="color: #BBB"> </span>--help
+</pre></div>
+
+<!-- ----------------------------- Run NEMESIS ----------------------------- -->
+<h2>Running NEMESIS</h2>
+<p>To run NEMESIS, you can use the command line interface. The basic syntax is:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span>nemesis<span style="color: #BBB"> </span>-c<span style="color: #BBB"> </span>&lt;config_file&gt;<span style="color: #BBB"> </span>&lt;source_files&gt;
+</pre></div>
+
+<p>For instance if you want to analyze a the file <code>main.cpp</code> of the following
+project:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span>.
+├── src/
+│   ├── ...
+│   └── main.cpp
+├── config.json
+└── CMakeLists.txt
+</pre></div>
+
+<p>You can the following command at the root of the project:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span>nemesis<span style="color: #BBB"> </span>-c<span style="color: #BBB"> </span>config.json<span style="color: #BBB"> </span>src/main.cpp
+</pre></div>
+
+<p>NEMESIS will then analyze the source files and generate a report in the SARIF
+format. The report will be saved at the root of the project in a file named
+<code>report.sarif</code>.</p>
+<!--
+**Note:** If you are trying to run NEMESIS on MacOS, you might need to add the
+following parameter to the command line:
+
+```bash
+nemesis --extra-arg="-isysroot$(xcrun --sdk macosx --show-sdk-path)" \
+        -c config.json src/main.cpp
+```
+-->
+<!-- -------------------------- Supported Metrics -------------------------- -->
+<h2>Supported Metrics</h2>
+<p>NEMESIS currently supports the following metrics:</p>
+<ul>
+<li>Cyclomatic Complexity</li>
+<li>Line of code count</li>
+<li>Fan-out</li>
+<li>Fan-in</li>
+<li>Number of parameters</li>
+<li>Halstead complexity</li>
+</ul>
+<p>And the following code smells:</p>
+<ul>
+<li>Use of <code>goto</code></li>
+<li>Use of <code>volatile</code></li>
+<li>Use of <code>__attribute__</code></li>
+<li>Use of <code>extern</code></li>
+</ul>
+<!-- ---------------------------- Configuration ---------------------------- -->
+<h2>Configuration</h2>
+<p>NEMESIS can be configured using a JSON file. The configuration file should
+define the metrics to be computed and their thresholds. Here is an example of
+the configuration file for Category A metrication :</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span>{
+<span style="color: #BBB">  </span><span style="color: #008000; font-weight: bold">&quot;metrics&quot;</span>:<span style="color: #BBB"> </span>[
+<span style="color: #BBB">    </span>{
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;name&quot;</span>:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Cyclomatic Complexity&quot;</span>,
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;threshold&quot;</span>:<span style="color: #BBB"> </span>{<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">&quot;type&quot;</span>:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;leq&quot;</span>,<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">&quot;value&quot;</span>:<span style="color: #BBB"> </span><span style="color: #666">10</span><span style="color: #BBB"> </span>},
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;enabled&quot;</span>:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">true</span>
+<span style="color: #BBB">    </span>},
+<span style="color: #BBB">    </span>{
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;name&quot;</span>:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Nesting Depth&quot;</span>,
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;threshold&quot;</span>:<span style="color: #BBB"> </span>{<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">&quot;type&quot;</span>:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;leq&quot;</span>,<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">&quot;value&quot;</span>:<span style="color: #BBB"> </span><span style="color: #666">5</span><span style="color: #BBB"> </span>},
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;enabled&quot;</span>:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">true</span>
+<span style="color: #BBB">    </span>},
+<span style="color: #BBB">    </span>{
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;name&quot;</span>:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Lines of Code&quot;</span>,
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;threshold&quot;</span>:<span style="color: #BBB"> </span>{<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">&quot;type&quot;</span>:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;leq&quot;</span>,<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">&quot;value&quot;</span>:<span style="color: #BBB"> </span><span style="color: #666">50</span><span style="color: #BBB"> </span>},
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;enabled&quot;</span>:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">true</span>
+<span style="color: #BBB">    </span>},
+<span style="color: #BBB">    </span>{
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;name&quot;</span>:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Comment Frequency&quot;</span>,
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;threshold&quot;</span>:<span style="color: #BBB"> </span>{<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">&quot;type&quot;</span>:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;geq&quot;</span>,<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">&quot;value&quot;</span>:<span style="color: #BBB"> </span><span style="color: #666">0.3</span><span style="color: #BBB"> </span>},
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;enabled&quot;</span>:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">true</span>
+<span style="color: #BBB">    </span>},
+<span style="color: #BBB">    </span>{
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;name&quot;</span>:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Fan-Out&quot;</span>,
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;threshold&quot;</span>:<span style="color: #BBB"> </span>{<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">&quot;type&quot;</span>:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;leq&quot;</span>,<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">&quot;value&quot;</span>:<span style="color: #BBB"> </span><span style="color: #666">2</span><span style="color: #BBB"> </span>},
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;enabled&quot;</span>:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">true</span>
+<span style="color: #BBB">    </span>}
+<span style="color: #BBB">  </span>],
+<span style="color: #BBB">  </span><span style="color: #008000; font-weight: bold">&quot;smells&quot;</span>:<span style="color: #BBB"> </span>[
+<span style="color: #BBB">    </span>{
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;name&quot;</span>:<span style="color: #BBB"> </span><span style="color: #BA2121">&quot;Use of goto&quot;</span>,
+<span style="color: #BBB">      </span><span style="color: #008000; font-weight: bold">&quot;enabled&quot;</span>:<span style="color: #BBB"> </span><span style="color: #008000; font-weight: bold">true</span>
+<span style="color: #BBB">    </span>}
+<span style="color: #BBB">    </span><span style="color: #3D7B7B; font-style: italic">// ...</span>
+<span style="color: #BBB">  </span>]
+}
+</pre></div>
+
+<!-- ---------------------------- Architecture ----------------------------- -->
+<h2>Architecture</h2>
+<p>Here is the file structure of NEMESIS:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span>src/
+├── Main.cpp
+├── utils/
+│   ├── Logger.hpp
+│   ├── Logger.cpp
+│   └── ...
+├── core/
+│   ├── MetricationAction.hpp
+│   ├── MetricConsumer.hpp
+│   ├── config/
+│   │   ├── Config.hpp
+│   │   ├── Rule.hpp
+│   │   ├── MetricRule.hpp
+│   │   └── SmellRule.hpp
+│   └─ report/
+│       ├── Report.hpp
+│       ├── Result.hpp
+│       ├── MetricResult.hpp
+│       └── SmellResult.hpp
+└── plugins/
+    ├── Plugin.hpp
+    ├── source_analyzer/
+    │   ├── SourceAnalyzer.hpp
+    │   └── SourceAnalyzer.cpp
+    ├── token_analyzer/
+    │   ├── TokenAnalyzer.hpp
+    │   └── TokenAnalyzer.cpp
+    └── ast_analyzer/
+        ├── AstAnalyzer.hpp
+        └── AstAnalyzer.cpp
+</pre></div>
+
+<!--! \cond -->
+<h3>Overview</h3>
+<!--! \endcond -->
+<p>The architecture of NEMESIS is designed to be modular and extensible. It
+consists of several key components:</p>
+<ul>
+<li>
+<p><strong>Core</strong>: The <code>core</code> package handles the main logic of the tool, including
+parsing source files, calculating metrics, and generating reports.</p>
+</li>
+<li>
+<p><strong>Analyzer</strong>: The <code>analyzer</code> package is responsible for analyzing the source
+code and computing the defined metrics. It uses the Clang libraries to parse
+the code and extract relevant information.</p>
+</li>
+<li>
+<p><strong>Report</strong>: The <code>report</code> package generates human-readable reports based on the
+computed metrics. It formats the output and provides a summary of the analysis.</p>
+</li>
+<li>
+<p><strong>Utils</strong>: The <code>utils</code> package provides various utility functions and classes
+that are used throughout the tool. This includes functions for file I/O,
+string manipulation, and other common tasks.</p>
+</li>
+</ul>
+<!--! \cond -->
+<!--### Diagrams
+
+The following PlantUML diagram illustrates the **architecture** of NEMESIS:
+
+<figure align="center">
+  <img src="doc/figures/architecture.png" width=500/>
+  <figcaption><sup><u>NEMESIS class diagram</u></sup></figcaption>
+</figure>
+
+The following PlantUML diagram illustrates the **data flow** of NEMESIS:
+
+<figure align="center">
+  <img src="doc/figures/flow.png" width=500/>
+  <figcaption><sup><u>NEMESIS sequence diagram</u></sup></figcaption>
+</figure>-->
+<!--! \endcond -->
+<!-- ---------------------------- Contributing ----------------------------- -->
+<!--! \cond -->
+<h2>Contributing</h2>
+<p>Contributions to NEMESIS are welcome! If you have suggestions for improvements,
+bug reports, or feature requests, please open an issue on the project's GitLab
+repository. If you would like to contribute code, please fork the repository
+and submit a merge request.</p>
+<p>You will be able to find the complete documentation of the code at :</p>
+<p>https://theo.bessel.io.esa.int/nemesis/</p>
+<p>You can also generate the documentation locally by running:</p>
+<div class="highlight" style="background: #f8f8f8"><pre style="line-height: 125%;"><span></span>make<span style="color: #BBB"> </span>doxygen
+</pre></div>
+
+<p>at the root of the project. This will generate the documentation in the
+<code>doc/html/</code> directory.</p>
+<h3>Maintainers</h3>
+<ul>
+<li>Théo BESSEL (<strong><a href="mailto:theo.bessel@ext.esa.int">theo.bessel@ext.esa.int</a></strong>, <a href="mailto:contact@theobessel.fr">contact@theobessel.fr</a>)</li>
+</ul>
+<!--! \endcond -->
+<!-- ----------------------------------------------------------------------- -->
+
+</div>
