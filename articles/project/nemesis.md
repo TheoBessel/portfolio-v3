@@ -6,9 +6,8 @@
 
 <!-- ------------------------- Quick Description --------------------------- -->
 
-NEMESIS is a tool designed to evaluate software metrics and perform static
-inspections. It provides a framework for software metrication and static code
-analysis, helping developers ensure code quality and maintainability.
+NEMESIS is a tool designed to evaluate software metrics and perform static code
+inspections.
 
 <!-- ----------------------------------------------------------------------- -->
 
